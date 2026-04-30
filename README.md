@@ -16,10 +16,24 @@
     --text: #F0E8D8;
     --text-muted: #9C8F78;
     --border: rgba(201, 169, 110, 0.25);
+    --bg: #0D0B08;
+    --card-bg: rgba(255,255,255,0.02);
+    --cross-color: white;
+  }
+
+  body.light {
+    --dark: #FAF6EF;
+    --bg: #FAF6EF;
+    --dark2: #F0E8D8;
+    --text: #2A1F0E;
+    --text-muted: #7A6A50;
+    --border: rgba(150, 110, 50, 0.25);
+    --card-bg: rgba(0,0,0,0.02);
+    --cross-color: #2A1F0E;
   }
 
   body {
-    background: var(--dark);
+    background: var(--bg);
     color: var(--text);
     font-family: 'Cormorant Garamond', serif;
     min-height: 100vh;
@@ -29,6 +43,7 @@
     justify-content: center;
     position: relative;
     overflow-x: hidden;
+    transition: background 0.4s ease, color 0.4s ease;
   }
 
   body::before {
@@ -51,6 +66,7 @@
   }
 
   .cross-bg svg { width: 600px; height: 600px; }
+  .cross-bg rect { fill: var(--cross-color); transition: fill 0.4s; }
 
   .container {
     max-width: 720px;
@@ -92,10 +108,11 @@
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 3rem 3rem 2.5rem;
-    background: rgba(255,255,255,0.02);
+    background: var(--card-bg);
     position: relative;
     margin-bottom: 2rem;
     animation: fadeIn 1s ease;
+    transition: background 0.4s ease, border-color 0.4s ease;
   }
 
   @keyframes fadeIn {
@@ -190,9 +207,289 @@
     .verse-card { padding: 2rem 1.5rem; }
     .container { padding: 2rem 1.25rem; }
   }
+
+  /* Top bar */
+  .top-bar {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.5rem;
+    display: flex;
+    gap: 0.6rem;
+    z-index: 100;
+  }
+
+  .icon-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .icon-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .icon-btn.active { color: var(--gold); border-color: var(--gold); }
+
+  /* Action row below card */
+  .action-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.88rem;
+    padding: 0.45rem 1.1rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+  .action-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,169,110,0.05); }
+  .action-btn.fav-active { color: #e8734a; border-color: #e8734a; }
+  .action-btn .icon { font-size: 1rem; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--gold);
+    color: #1a1208;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    transition: transform 0.35s ease;
+    z-index: 200;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Favorites panel */
+  .fav-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: min(380px, 100vw);
+    height: 100vh;
+    background: var(--bg);
+    border-left: 1px solid var(--border);
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s ease, background 0.4s ease;
+    overflow: hidden;
+  }
+  .fav-panel.open { transform: translateX(0); }
+
+  .fav-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .fav-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .fav-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .fav-close:hover { color: var(--text); }
+
+  .fav-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+  .fav-list::-webkit-scrollbar { width: 4px; }
+  .fav-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .fav-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 1rem;
+    margin-top: 3rem;
+    line-height: 1.7;
+  }
+
+  .fav-item {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem 1rem 0.8rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .fav-item:hover { border-color: var(--gold); background: rgba(201,169,110,0.04); }
+  .fav-item-ref {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.4rem;
+  }
+  .fav-item-text {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+    font-style: italic;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .fav-item-remove {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+    float: right;
+    margin-left: 0.5rem;
+    line-height: 1;
+  }
+
+  /* Share modal */
+  .share-modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .share-modal-bg.open { display: flex; }
+  .share-modal {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2rem;
+    width: min(360px, 90vw);
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+  }
+  .share-modal h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .share-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .share-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: none;
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .share-link-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,169,110,0.05); }
+  .share-link-btn .s-icon { font-size: 1.2rem; width: 1.5rem; text-align: center; }
+  .share-cancel {
+    margin-top: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+  }
+  .share-cancel:hover { color: var(--text); }
+
+  /* Overlay for fav panel */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 299;
+    display: none;
+  }
+  .overlay.open { display: block; }
 </style>
 </head>
 <body>
+
+<div class="top-bar">
+  <button class="icon-btn" id="theme-btn" title="Mode jour/nuit">🌙</button>
+  <button class="icon-btn" id="fav-open-btn" title="Mes favoris">🔖</button>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="fav-panel" id="fav-panel">
+  <div class="fav-header">
+    <h2>✦ Mes Favoris</h2>
+    <button class="fav-close" id="fav-close">✕</button>
+  </div>
+  <div class="fav-list" id="fav-list">
+    <p class="fav-empty">Tu n'as pas encore de favoris.<br>Clique sur ♡ pour en ajouter.</p>
+  </div>
+</div>
+
+<div class="share-modal-bg" id="share-modal-bg">
+  <div class="share-modal">
+    <h3>Partager ce verset</h3>
+    <div class="share-btns">
+      <button class="share-link-btn" id="copy-btn">
+        <span class="s-icon">📋</span> Copier le texte
+      </button>
+      <a class="share-link-btn" id="whatsapp-btn" target="_blank" rel="noopener">
+        <span class="s-icon">💬</span> WhatsApp
+      </a>
+      <a class="share-link-btn" id="facebook-btn" target="_blank" rel="noopener">
+        <span class="s-icon">📘</span> Facebook
+      </a>
+    </div>
+    <button class="share-cancel" id="share-cancel">Annuler</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <div class="cross-bg">
   <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -213,6 +510,11 @@
     <span class="quote-mark">"</span>
     <p class="verse-text" id="verse-text"></p>
     <span class="verse-ref" id="verse-ref"></span>
+  </div>
+
+  <div class="action-row">
+    <button class="action-btn" id="fav-btn"><span class="icon">♡</span> Favori</button>
+    <button class="action-btn" id="share-btn"><span class="icon">↗</span> Partager</button>
   </div>
 
   <div class="nav-row">
@@ -595,9 +897,156 @@ function getDayOfYear(d) {
 const today = new Date();
 const totalVersets = VERSETS.length;
 const todayIndex = getDayOfYear(today) % totalVersets;
-
 let currentIndex = todayIndex;
 
+// ── FAVORITES ──────────────────────────────────────────
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem('kam_favs') || '[]'); } catch(e) { return []; }
+}
+function saveFavs(favs) {
+  try { localStorage.setItem('kam_favs', JSON.stringify(favs)); } catch(e) {}
+}
+function isFav(index) { return getFavs().includes(index); }
+function toggleFav(index) {
+  let favs = getFavs();
+  if (favs.includes(index)) {
+    favs = favs.filter(i => i !== index);
+    showToast('Retiré des favoris');
+  } else {
+    favs.push(index);
+    showToast('Ajouté aux favoris ♡');
+  }
+  saveFavs(favs);
+  updateFavBtn();
+  renderFavList();
+}
+
+function updateFavBtn() {
+  const btn = document.getElementById('fav-btn');
+  if (isFav(currentIndex)) {
+    btn.innerHTML = '<span class="icon">♥</span> Favori';
+    btn.classList.add('fav-active');
+  } else {
+    btn.innerHTML = '<span class="icon">♡</span> Favori';
+    btn.classList.remove('fav-active');
+  }
+}
+
+function renderFavList() {
+  const favs = getFavs();
+  const list = document.getElementById('fav-list');
+  if (favs.length === 0) {
+    list.innerHTML = '<p class="fav-empty">Tu n\'as pas encore de favoris.<br>Clique sur ♡ pour en ajouter.</p>';
+    return;
+  }
+  list.innerHTML = favs.map(i => {
+    const v = VERSETS[i];
+    return `<div class="fav-item" data-index="${i}">
+      <div class="fav-item-ref">
+        <span class="fav-item-remove" data-remove="${i}">✕</span>
+        ${v.ref}
+      </div>
+      <div class="fav-item-text">${v.texte}</div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.fav-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.dataset.remove !== undefined) return;
+      currentIndex = parseInt(el.dataset.index);
+      render(currentIndex, true);
+      closeFavPanel();
+    });
+  });
+  list.querySelectorAll('[data-remove]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = parseInt(el.dataset.remove);
+      let favs = getFavs().filter(i => i !== idx);
+      saveFavs(favs);
+      updateFavBtn();
+      renderFavList();
+    });
+  });
+}
+
+document.getElementById('fav-btn').addEventListener('click', () => toggleFav(currentIndex));
+document.getElementById('fav-open-btn').addEventListener('click', openFavPanel);
+document.getElementById('fav-close').addEventListener('click', closeFavPanel);
+document.getElementById('overlay').addEventListener('click', closeFavPanel);
+
+function openFavPanel() {
+  renderFavList();
+  document.getElementById('fav-panel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeFavPanel() {
+  document.getElementById('fav-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ── THEME ──────────────────────────────────────────────
+let isLight = localStorage.getItem('kam_theme') === 'light';
+function applyTheme() {
+  document.body.classList.toggle('light', isLight);
+  document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+}
+applyTheme();
+document.getElementById('theme-btn').addEventListener('click', () => {
+  isLight = !isLight;
+  localStorage.setItem('kam_theme', isLight ? 'light' : 'dark');
+  applyTheme();
+});
+
+// ── SHARE ──────────────────────────────────────────────
+function getShareText() {
+  const v = VERSETS[currentIndex];
+  return `« ${v.texte} » — ${v.ref}`;
+}
+
+document.getElementById('share-btn').addEventListener('click', () => {
+  const v = VERSETS[currentIndex];
+  const text = getShareText();
+  const url = encodeURIComponent(window.location.href);
+  const encoded = encodeURIComponent(text);
+  document.getElementById('whatsapp-btn').href = `https://wa.me/?text=${encoded}`;
+  document.getElementById('facebook-btn').href = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encoded}`;
+  document.getElementById('share-modal-bg').classList.add('open');
+});
+
+document.getElementById('share-cancel').addEventListener('click', () => {
+  document.getElementById('share-modal-bg').classList.remove('open');
+});
+document.getElementById('share-modal-bg').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('share-modal-bg'))
+    document.getElementById('share-modal-bg').classList.remove('open');
+});
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const text = getShareText();
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('share-modal-bg').classList.remove('open');
+    showToast('Verset copié !');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    document.getElementById('share-modal-bg').classList.remove('open');
+    showToast('Verset copié !');
+  });
+});
+
+// ── TOAST ──────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── RENDER ─────────────────────────────────────────────
 function render(index, animate) {
   const v = VERSETS[index];
   const card = document.getElementById('verse-card');
@@ -611,6 +1060,7 @@ function render(index, animate) {
   document.getElementById('verse-counter').textContent =
     (index === todayIndex ? '★ Aujourd\'hui · ' : '') +
     'N° ' + (index + 1) + ' / ' + totalVersets;
+  updateFavBtn();
 }
 
 const months = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
