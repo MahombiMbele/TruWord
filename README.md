@@ -6,7 +6,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
     --gold: #C9A96E;
     --gold-light: #E8D5A3;
@@ -20,7 +19,6 @@
     --card-bg: rgba(255,255,255,0.02);
     --cross-color: white;
   }
-
   body.light {
     --dark: #FAF6EF;
     --bg: #FAF6EF;
